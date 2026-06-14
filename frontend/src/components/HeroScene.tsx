@@ -1,7 +1,7 @@
 'use client';
 
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Instance, Instances, Environment } from '@react-three/drei';
+import { Instance, Instances } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette, SMAA } from '@react-three/postprocessing';
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
@@ -98,9 +98,8 @@ function IslandGroup({ paused }: { paused: boolean }) {
               color={meta.color}
               emissive={meta.color}
               emissiveIntensity={bright ? 0.08 : 0.55}
-              roughness={0.38}
-              metalness={0.38}
-              envMapIntensity={0.7}
+              roughness={0.45}
+              metalness={0.18}
             />
             {list.map((c, i) => (
               <Instance key={i} position={c.pos} scale={c.scale} />
@@ -171,7 +170,7 @@ export default function HeroScene() {
       camera={{ position: [14, 11, 16], fov: 42 }}
       gl={{
         antialias: false,
-        alpha: false,
+        alpha: true,
         toneMapping: THREE.ACESFilmicToneMapping,
         toneMappingExposure: 1.05,
       }}
@@ -180,8 +179,7 @@ export default function HeroScene() {
       }}
     >
       <Suspense fallback={null}>
-        <Environment files="/space-nebula.jpg" background backgroundBlurriness={0} />
-        <ambientLight intensity={0.25} color="#9fb4d8" />
+        <ambientLight intensity={0.4} color="#9fb4d8" />
         <directionalLight position={[12, 18, 8]} intensity={1.5} color="#fff1e0" />
         <pointLight position={[-14, 6, -10]} intensity={2.0} color="#3df0e0" distance={50} />
         <pointLight position={[8, -4, 12]} intensity={1.0} color="#ff7a18" distance={40} />
