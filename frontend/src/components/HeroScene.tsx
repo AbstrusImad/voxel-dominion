@@ -1,8 +1,9 @@
 'use client';
 
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Instance, Instances } from '@react-three/drei';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Instance, Instances, Environment } from '@react-three/drei';
+import { EffectComposer, Bloom, Vignette, SMAA } from '@react-three/postprocessing';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { MATERIALS } from '@/lib/contract';
 
@@ -97,8 +98,9 @@ function IslandGroup({ paused }: { paused: boolean }) {
               color={meta.color}
               emissive={meta.color}
               emissiveIntensity={bright ? 0.08 : 0.55}
-              roughness={0.45}
-              metalness={0.18}
+              roughness={0.38}
+              metalness={0.38}
+              envMapIntensity={0.7}
             />
             {list.map((c, i) => (
               <Instance key={i} position={c.pos} scale={c.scale} />
@@ -107,6 +109,38 @@ function IslandGroup({ paused }: { paused: boolean }) {
         );
       })}
     </group>
+  );
+}
+
+// Slow-drifting motes of light dust for depth.
+function Dust() {
+  const ref = useRef<THREE.Points>(null);
+  const geo = useMemo(() => {
+    const g = new THREE.BufferGeometry();
+    const n = 240;
+    const arr = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 44;
+      arr[i * 3 + 1] = (Math.random() - 0.5) * 26;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 44;
+    }
+    g.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+    return g;
+  }, []);
+  useFrame((_, d) => {
+    if (ref.current) ref.current.rotation.y += d * 0.02;
+  });
+  return (
+    <points ref={ref} geometry={geo}>
+      <pointsMaterial
+        size={0.09}
+        color="#9fb4d8"
+        transparent
+        opacity={0.5}
+        sizeAttenuation
+        depthWrite={false}
+      />
+    </points>
   );
 }
 
@@ -135,16 +169,30 @@ export default function HeroScene() {
       frameloop={reduced ? 'demand' : frameloop}
       dpr={[1, 2]}
       camera={{ position: [14, 11, 16], fov: 42 }}
-      gl={{ antialias: true, alpha: true }}
+      gl={{
+        antialias: false,
+        alpha: false,
+        toneMapping: THREE.ACESFilmicToneMapping,
+        toneMappingExposure: 1.05,
+      }}
       onCreated={({ scene }) => {
-        scene.fog = new THREE.Fog('#05060a', 22, 46);
+        scene.fog = new THREE.Fog('#05060a', 24, 54);
       }}
     >
-      <ambientLight intensity={0.35} color="#9fb4d8" />
-      <directionalLight position={[12, 18, 8]} intensity={1.6} color="#fff1e0" />
-      <pointLight position={[-14, 6, -10]} intensity={2.2} color="#3df0e0" distance={50} />
-      <pointLight position={[8, -4, 12]} intensity={1.1} color="#ff7a18" distance={40} />
-      <IslandGroup paused={paused} />
+      <Suspense fallback={null}>
+        <Environment files="/space-nebula.jpg" background backgroundBlurriness={0} />
+        <ambientLight intensity={0.25} color="#9fb4d8" />
+        <directionalLight position={[12, 18, 8]} intensity={1.5} color="#fff1e0" />
+        <pointLight position={[-14, 6, -10]} intensity={2.0} color="#3df0e0" distance={50} />
+        <pointLight position={[8, -4, 12]} intensity={1.0} color="#ff7a18" distance={40} />
+        <IslandGroup paused={paused} />
+        <Dust />
+        <EffectComposer multisampling={0}>
+          <Bloom mipmapBlur luminanceThreshold={0.35} luminanceSmoothing={0.2} intensity={0.95} radius={0.7} />
+          <Vignette eskil={false} offset={0.25} darkness={0.7} />
+          <SMAA />
+        </EffectComposer>
+      </Suspense>
     </Canvas>
   );
 }

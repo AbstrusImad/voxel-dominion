@@ -1,8 +1,9 @@
 'use client';
 
 import { Canvas, ThreeEvent } from '@react-three/fiber';
-import { Instance, Instances, OrbitControls } from '@react-three/drei';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Instance, Instances, OrbitControls, Environment } from '@react-three/drei';
+import { EffectComposer, Bloom, SMAA } from '@react-three/postprocessing';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { MATERIALS, VOXELS } from '@/lib/contract';
 import { Voxel, voxelKey } from '@/lib/voxel';
@@ -154,8 +155,9 @@ function BuilderScene({ voxels, activeMaterial, removeMode, onPlace, onRemove }:
               color={meta.color}
               emissive={meta.color}
               emissiveIntensity={0.18}
-              roughness={0.4}
-              metalness={0.2}
+              roughness={0.35}
+              metalness={0.4}
+              envMapIntensity={0.65}
             />
             {list.map((v) => (
               <Instance
@@ -223,12 +225,24 @@ export default function VoxelBuilder(props: VoxelBuilderProps) {
       frameloop={frameloop}
       dpr={[1, 2]}
       camera={{ position: [16, 14, 18], fov: 45 }}
-      gl={{ antialias: true, alpha: true }}
+      gl={{
+        antialias: false,
+        alpha: true,
+        toneMapping: THREE.ACESFilmicToneMapping,
+        toneMappingExposure: 1.0,
+      }}
       onCreated={({ scene }) => {
         scene.fog = new THREE.Fog('#05060a', 30, 70);
       }}
     >
-      <BuilderScene {...props} />
+      <Suspense fallback={null}>
+        <Environment files="/space-nebula.jpg" />
+        <BuilderScene {...props} />
+        <EffectComposer multisampling={0}>
+          <Bloom mipmapBlur luminanceThreshold={0.5} luminanceSmoothing={0.2} intensity={0.7} radius={0.6} />
+          <SMAA />
+        </EffectComposer>
+      </Suspense>
     </Canvas>
   );
 }

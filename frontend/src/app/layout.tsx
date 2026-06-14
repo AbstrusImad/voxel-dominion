@@ -23,6 +23,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://voxel-dominion.pages.dev'),
   title: 'VOXEL DOMINION - a war for territory judged by the World Spirit',
   description:
     'Raise voxel structures on a floating world, let the on-chain World Spirit judge them against the living age, and seize the map. An interactive WebGL strategy game on GenLayer Bradbury Testnet.',
@@ -31,12 +32,14 @@ export const metadata: Metadata = {
     description:
       'Raise structures. Let the World Spirit judge them. Seize the map. An on-chain voxel strategy game ruled by AI under validator consensus.',
     type: 'website',
+    images: [{ url: '/og.jpg', width: 1200, height: 675, alt: 'A floating voxel island war world' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'VOXEL DOMINION',
     description:
       'Build voxel claims, beat the standing score, capture territory. Judged by an on-chain World Spirit under consensus on GenLayer.',
+    images: ['/og.jpg'],
   },
 };
 
