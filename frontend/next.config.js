@@ -2,7 +2,7 @@
 const nextConfig = {
   output: 'export',
   images: { unoptimized: true },
-  basePath: '/voxel-dominion',
+  // Published on Cloudflare Pages, which serves from the domain root, so no basePath.
   transpilePackages: ['three', '@react-three/fiber', '@react-three/drei'],
 };
 module.exports = nextConfig;

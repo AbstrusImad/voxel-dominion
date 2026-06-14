@@ -53,7 +53,7 @@ Fund a wallet with test GEN before you build; an AI write reserves a fee that is
 ```ini
 [deployment]
 network   = GenLayer Bradbury Testnet
-live      = https://abstrusimad.github.io/voxel-dominion/
+live      = https://voxel-dominion.pages.dev/
 contract  = 0xB060d7Ed7529c6c3Fd3f8F345C13A22A3b220636
 explorer  = https://explorer-bradbury.genlayer.com/address/0xB060d7Ed7529c6c3Fd3f8F345C13A22A3b220636
 deploy_tx = 0xd7f778e5d7acabfe6f3796a8488179072827036b3aec00c400969b022d74b5aa
